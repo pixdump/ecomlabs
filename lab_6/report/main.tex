@@ -1,0 +1,448 @@
+% chktex-file 8 36 26 38 32
+\documentclass[a4paper,12pt]{article}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{float}
+\geometry{margin=1in}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{minted}
+\usepackage{colortbl}
+\usepackage{setspace}
+\usepackage[utf8]{inputenc}
+\usepackage{newunicodechar}
+\usepackage{amssymb}
+\usepackage{lmodern} 
+\usepackage{subcaption}
+\usepackage{silence}
+\WarningFilter{fancyhdr}{\headheight is too small}
+
+\newunicodechar{✓}{\checkmark}  
+\usepackage[most]{tcolorbox}
+\tcbuselibrary{minted, listingsutf8}
+\setminted{breaklines}
+
+\newtcblisting{code}[2][]{%
+  listing engine=minted,
+  colback=white,
+  colframe=black,
+  listing only,
+  minted language=#2,
+  minted options={fontsize=\small, linenos, breaklines,
+                  breaksymbolleft=, breaksymbolright=, #1},
+  sharp corners,
+  boxrule=0.8pt,
+  left=5pt,
+  right=5pt,
+  top=8pt,
+  bottom=8pt,
+  enhanced,
+  breakable
+}
+
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue},
+  stringstyle=\color{red},
+  commentstyle=\color{green!50!black},
+  breaklines=true,
+  frame=single,
+  numbers=left,
+  numberstyle=\tiny,
+  stepnumber=1,
+  numbersep=5pt,
+  showstringspaces=false,
+  tabsize=2,
+}
+
+% Header and footer setup for all pages except cover
+\fancypagestyle{main}{
+  \fancyhf{}
+  \rhead{CSC381 - E-Commerce}
+  \lhead{Lab 6: Admin Panel management}
+  \cfoot{\thepage}
+  \renewcommand{\headrulewidth}{0.4pt}
+  \renewcommand{\footrulewidth}{0.4pt}
+}
+
+\title{Lab 6: Admin Panel for Product, Brand Category and order management}
+\author{Submitted by: Parakram Kharel \\ Roll No: 24 \\ 
+\textit{Kathford International College of Engineering and Management} \\ 
+Affiliated to Tribhuvan University}
+% \date{\today}
+\makeatletter
+\begin{document}
+% \date{August 17, 2025}
+
+% --------- Cover Page ---------
+\begin{titlepage}
+  \begin{center}
+    \vspace*{2cm}
+    \includegraphics[width=0.35\textwidth]{Kath.png} \\[2cm]
+
+    {\Huge \bfseries Lab Report 6} \\[0.5cm]
+    {\Large Admin Panel for Product, Brand Category and order management} \\[2cm]
+
+    {\Large \textbf{Course:} CSC381 - E-Commerce} \\[1cm]
+    {\Large \textbf{Submitted by:}} \\[0.3cm]
+    {\large Parakram Kharel \\ Roll No: 24} \\[2cm]
+
+    \textit{Kathford International College of Engineering and Management} \\
+    Affiliated to Tribhuvan University \\[3cm]
+    
+    \date{August 17, 2025}
+    {\normalsize \@date}
+    % \today
+  \end{center}
+\end{titlepage}
+
+% Use fancy header/footer for the rest of the document
+\pagestyle{main}
+\setlength{\parskip}{1em}
+
+% --------- Content ---------
+\section*{1. Objective}
+Design and implement an admin panel to manage products, brands, categories, and orders, enabling administrators to add, update, soft-delete/restore products and to review and update order statuses in a secure, efficient workflow.
+
+\section*{2. Tools and Technologies Used}
+\begin{longtable}{ll}
+\toprule
+\textbf{Technology} & \textbf{Purpose} \\
+\midrule
+HTML5 & Admin pages and form structure \\
+CSS3 & Layout and visual styling \\
+JavaScript & Inline confirmations and UI behavior \\
+PHP & Server-side logic, CRUD \\
+MySQL & Persistent storage for catalog and orders \\
+Caddy & Web server and local hosting \\
+Bootstrap 5 & Admin UI, tables, forms, responsive grid \\
+VS Code & Development environment \\
+Browser DevTools & Testing and debugging \\
+\bottomrule
+\end{longtable}
+
+\section*{3. Theory / Background}
+The admin panel serves as a secure CRUD interface over MySQL, where PHP executes parameterized queries to manage products, brands, categories, and orders. Server-side rendering outputs compact, responsive pages with Bootstrap tables and forms, while output escaping prevents XSS. Soft delete toggles a status flag instead of removing rows, preserving data integrity and references.
+
+\section*{4. Page Layout Design}
+
+\subsection*{4.1 Product Listing Grid}
+\begin{itemize}
+  \item Admin list shows products with image, title, price, status, and actions.
+  \item Inline actions: edit, soft delete (disable), and optional restore.
+  \item Compact, responsive rows for quick scanning.
+\end{itemize}
+
+\subsection*{4.2 Filtering by Brand and Category}
+\begin{itemize}
+  \item Sidebar links filter server-side by brand/category id.
+  \item Empty results display a short “No data found” notice.
+\end{itemize}
+
+\subsection*{4.3 Product Details Page}
+\begin{itemize}
+  \item Secure load by id (prepared statement).
+  \item Up to three images, description, brand, category, and price.
+\end{itemize}
+
+\subsection*{4.4 Navigation and Search}
+\begin{itemize}
+  \item Top nav for sections (Products, Brands, Categories, Orders).
+  \item Search form submits to server to filter listings.
+\end{itemize}
+
+\subsection*{4.5 Data and Security Practices}
+\begin{itemize}
+  \item Prepared statements for all write/read by id.
+  \item Escaped outputs for titles, images, and prices.
+  \item Soft delete via status field; restore supported from admin.
+\end{itemize}
+
+\subsection*{4.6 Order Management}
+\begin{itemize}
+  \item Admin list shows orders with ID, order number, total amount, payment mode, status, and placed date.
+  \item Inline actions: update status (pending, paid, processing, shipped, delivered, cancelled).
+  \item Responsive table for easy scanning.
+\end{itemize}
+  
+\section*{5. Code Snippets}
+
+\subsection*{5.1 Admin Manage Order}
+\begin{code}[fontsize=\small]{php}
+<?php
+$flash = '';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_status') {
+    $order_id = isset($_POST['order_id']) ? (int)$_POST['order_id'] : 0;
+    $status   = $_POST['status'] ?? '';
+    if ($order_id <= 0) {
+        $flash = 'Bad order id.';
+    } elseif (!in_array($status, $ALLOWED, true)) {
+        $flash = 'Invalid status.';
+    } else {
+        $u = $conn->prepare("UPDATE orders SET status = ? WHERE id = ? LIMIT 1");
+        $u->bind_param('si', $status, $order_id);
+        if ($u->execute()) {
+            $flash = 'Order status updated.';
+        } else {
+            $flash = 'Update failed.';
+        }
+        $u->close();
+    }
+}
+?>
+\end{code}
+
+\subsection*{5.2 PHP Code to Add Brand and Category}
+\begin{code}[fontsize=\small]{php}
+// INSERT BRAND
+<?php
+$insert_query = "INSERT INTO `brands`(`brand_title`) VALUES ('$brand_title')";
+$result = mysqli_query($conn, $insert_query);
+
+if ($result) {
+    echo "<script>alert('Brand has been inserted successfully')</script>";
+} else {
+    die("Insert failed: " . mysqli_error($conn));
+}
+// INSERT CATEGORY
+$insert_query = "INSERT INTO `cateogries`(`category_title`) VALUES ('$category_title')";
+$result = mysqli_query($conn, $insert_query);
+if ($result) {
+    echo "<script> alert('categories has been inserted successfully')</script>";
+} else {
+    die("Insert failed: " . mysqli_error($conn));
+}
+?>
+\end{code}
+
+\subsection*{5.3 Add Products}
+\begin{code}[fontsize=\small]{php}
+<?php
+$stmt = $conn->prepare("INSERT INTO `products` (product_title,
+product_description,product_keywords,category_id,
+brand_id,product_image1,product_image2,
+product_image3,product_price,date,
+status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)");
+
+if (!$stmt) {
+    error_log('Prepare failed: ' . $conn->error);
+    echo "<script>alert('Database error. Please try again later.');</script>";
+    exit();
+}
+$stmt->bind_param("sssissssds",$product_Title,$product_Desc,
+$product_Key,$product_Cat,$product_Brand,$uploadedImages[0],
+$uploadedImages[1],$uploadedImages[2],$product_Price,
+$product_Status
+);
+
+if ($stmt->execute()) {
+    echo "<script>alert('Product inserted successfully');</script>";
+} else {
+    error_log('Execute failed: ' . $stmt->error);
+    echo "<script>alert('Database error. Please try again later.');</script>";
+}
+?>
+<div class="form-container shadow-sm">
+<h2 class="form-title">Add New Product</h2>
+<form method="POST" action="" enctype="multipart/form-data" novalidate>
+  <label for="product_title">Product Title <span>*</span></label>
+  <input type="text" id="product_title" name="product_title"
+      placeholder="Enter product title" required />
+  <label for="description">Product Description <span>*</span></label>
+  <textarea id="description" name="description" rows="3"
+      placeholder="Enter product description" required></textarea>
+  <label for="product_keywords">Keywords <span>*</span></label>
+  <input type="text" id="product_keywords" name="product_keywords"
+      placeholder="Enter keywords separated by comma" required />
+
+  <label for="product_category">Category <span>*</span></label>
+  <select id="product_category" name="product_category" required>
+    <option value="" disabled selected>Select category</option>
+    <?php
+    $categories = mysqli_query($conn, "SELECT * FROM cateogries");
+    while ($cat = mysqli_fetch_assoc($categories)) {
+      echo "<option value='{$cat['category_id']}'>{$cat['category_title']}</option>";
+    }
+    ?>
+  </select>
+  <label for="product_brand">Brand <span>*</span></label>
+  <select id="product_brand" name="product_brand" required>
+    <option value="" disabled selected>Select brand</option>
+    <?php
+      $brands = mysqli_query($conn, "SELECT * FROM brands");
+      while ($brand = mysqli_fetch_assoc($brands)) {
+        echo "<option value='{$brand['brand_id']}'>{$brand['brand_title']}</option>";
+      }
+    ?>
+  </select>
+
+  <label for="product_price">Price (NPR) <span>*</span></label>
+    <input type="number" min="0" id="product_price" name="product_price" required />
+  <label for="product_image1">Upload Images<span>*</span></label>
+  <input type="file" name="product_image1" accept="image/*"  id="product_image1" required />
+  <input type="file" name="product_image2" accept="image/*" id="product_image2" required />
+  <input type="file" name="product_image3" accept="image/*" id="product_image3" required />
+  <button type="submit" name="insert_product">Insert Product</button>
+</form>
+\end{code}
+
+\subsection*{5.4 PHP: Edit Product}
+\begin{code}[fontsize=\small]{php}
+<?php
+$stmt2 = $conn->prepare("
+    UPDATE products
+        SET product_title = ?, product_description = ?, 
+        product_keywords = ?, category_id = ?,
+        brand_id = ?, product_image1 = ?, 
+        product_image2 = ?, product_image3 = ?, 
+        product_price = ?, status = ?
+      WHERE product_id = ?
+      LIMIT 1
+");
+
+$typeString = 'sssiisssssi';
+$stmt2->bind_param(
+    $typeString, $title, $desc, $keys, $catId, $brandId,
+    $images['product_image1'], $images['product_image2'],
+    $images['product_image3'], $price, $status, $product_id
+);
+
+if ($stmt2->execute()) {
+  echo "<script>alert('Product updated successfully.')</script>";
+} else {
+  echo "<script>alert('Update failed. Please try again.')</script>";
+}
+$stmt2->close();
+?>
+<form method="post" enctype="multipart/form-data" class="row g-3 bg-white p-3 rounded shadow-sm">
+  <label class="form-label">Title</label>
+  <input type="text" name="product_title" value="<?= e($current['product_title']) ?>" required>
+
+  <label class="form-label">Keywords</label>
+  <input type="text" name="product_keywords" value="<?= e($current['product_keywords']) ?>" required>
+
+  <label class="form-label">Description</label>
+  <textarea name="product_description" rows="4" required><?= e($current['product_description']) ?></textarea>
+
+  <label class="form-label">Brand</label>
+  <select name="brand_id" required>
+    <option value="">Select brand…</option>
+    <?php foreach ($brands as $b): ?>
+      <option value="<?= (int)$b['brand_id'] ?>" <?= $current['brand_id']==$b['brand_id']?'selected':'' ?>>
+        <?= e($b['brand_title']) ?>
+      </option>
+    <?php endforeach; ?>
+  </select>
+
+  <label class="form-label">Category</label>
+  <select name="category_id" required>
+    <option value="">Select category…</option>
+    <?php foreach ($cats as $c): ?>
+      <option value="<?= (int)$c['category_id'] ?>" <?= $current['category_id']==$c['category_id']?'selected':'' ?>>
+        <?= e($c['category_title']) ?>
+      </option>
+    <?php endforeach; ?>
+  </select>
+
+  <label class="form-label">Price</label>
+  <input type="text" name="product_price" value="<?= e($current['product_price']) ?>" required>
+
+  <label class="form-label">Status</label>
+  <select name="status" required>
+    <option value="true"  <?= $current['status']==='true'?'selected':'' ?>>Active</option>
+    <option value="false" <?= $current['status']!=='true'?'selected':'' ?>>Inactive</option>
+  </select>
+
+  <label>Replace Image 1</label>
+  <input type="file" name="product_image1" accept="image/*">
+
+  <label>Replace Image 2</label>
+  <input type="file" name="product_image2" accept="image/*">
+
+  <label>Replace Image 3</label>
+  <input type="file" name="product_image3" accept="image/*">
+
+  <button type="submit">Save</button>
+  <a href="index.php?list_products">Back</a>
+</form>
+
+\end{code}
+
+\section*{6. Output / Screenshots}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{images/insert_category.png}
+  \caption{Insert Category.}
+  \label{fig:img1}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{images/insert_brand.png}
+  \caption{Insert Brand.}
+  \label{fig:img2}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{images/insert_product.png}
+  \caption{Insert Product.}
+  \label{fig:img3}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{images/edit_product.png}
+  \caption{Edit Product.}
+  \label{fig:img4}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth,height=5cm]{images/edit_product_success.png}
+  \caption{Edit Product Success.}
+  \label{fig:img5}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{images/delete_product.png}
+  \caption{Delete Product.}
+  \label{fig:img6}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{images/order_manage.png}
+  \caption{Order Management.}
+  \label{fig:img7}
+\end{figure}
+
+\section*{7. Result}
+The admin panel enables secure CRUD over the catalog and orders: products can be added, edited, soft-deleted/restored, and listed with images, price, and status. Orders are listed with totals and item counts, and their statuses can be updated inline (pending, paid, processing, shipped, delivered, cancelled). All interactions use parameterized queries, escaped outputs, and responsive Bootstrap tables and forms for reliable, fast administration.
+
+\section*{8. Conclusion}
+The system delivers a maintainable back office for catalog and order management with clear workflows and safe data handling. Server-side rendering, prepared statements, and output escaping ensure integrity, while soft delete preserves history. The panel is ready for extensions like pagination, role-based access, audit logs, and export/reporting.
+
+\section*{9. References}
+\begin{itemize}
+  \item \href{https://www.php.net/manual/en/mysqli.prepare.php}{PHP mysqli Prepared Statements}
+  \item \href{https://www.php.net/manual/en/function.htmlspecialchars.php}{PHP htmlspecialchars}
+  \item \href{https://dev.mysql.com/doc/refman/8.0/en/update.html}{MySQL UPDATE Reference}
+  \item \href{https://dev.mysql.com/doc/refman/8.0/en/select.html}{MySQL SELECT Reference}
+  \item \href{https://getbootstrap.com/docs/5.3/getting-started/introduction/}{Bootstrap 5 Documentation}
+  \item \href{https://developer.mozilla.org/en-US/docs/Web/HTTP}{MDN HTTP Reference}
+  \item \href{https://caddyserver.com/docs/}{Caddy Web Server Documentation}
+\end{itemize}
+
+\end{document}

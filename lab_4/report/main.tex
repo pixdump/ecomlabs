@@ -1,0 +1,386 @@
+% chktex-file 8 36 26 38 32
+\documentclass[a4paper,12pt]{article}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{float}
+\geometry{margin=1in}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{minted}
+\usepackage{colortbl}
+\usepackage{setspace}
+\usepackage[utf8]{inputenc}
+\usepackage{newunicodechar}
+\usepackage{amssymb}
+\usepackage{lmodern} 
+\usepackage{subcaption}
+\usepackage{silence}
+\WarningFilter{fancyhdr}{\headheight is too small}
+
+\newunicodechar{✓}{\checkmark}  
+\usepackage[most]{tcolorbox}
+\tcbuselibrary{minted, listingsutf8}
+\setminted{breaklines}
+
+\newtcblisting{code}[2][]{%
+  listing engine=minted,
+  colback=white,
+  colframe=black,
+  listing only,
+  minted language=#2,
+  minted options={fontsize=\small, linenos, breaklines,
+                  breaksymbolleft=, breaksymbolright=, #1},
+  sharp corners,
+  boxrule=0.8pt,
+  left=5pt,
+  right=5pt,
+  top=8pt,
+  bottom=8pt,
+  enhanced,
+  breakable
+}
+
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue},
+  stringstyle=\color{red},
+  commentstyle=\color{green!50!black},
+  breaklines=true,
+  frame=single,
+  numbers=left,
+  numberstyle=\tiny,
+  stepnumber=1,
+  numbersep=5pt,
+  showstringspaces=false,
+  tabsize=2,
+}
+
+% Header and footer setup for all pages except cover
+\fancypagestyle{main}{
+  \fancyhf{}
+  \rhead{CSC381 - E-Commerce}
+  \lhead{Lab 4: Form handling validation and Server side Product Entry}
+  \cfoot{\thepage}
+  \renewcommand{\headrulewidth}{0.4pt}
+  \renewcommand{\footrulewidth}{0.4pt}
+}
+
+\title{Lab 4: Form handling validation and Server side Product Entry}
+\author{Submitted by: Parakram Kharel \\ Roll No: 24 \\ 
+\textit{Kathford International College of Engineering and Management} \\ 
+Affiliated to Tribhuvan University}
+% \date{\today}
+\makeatletter
+\begin{document}
+% \date{August 17, 2025}
+
+% --------- Cover Page ---------
+\begin{titlepage}
+  \begin{center}
+    \vspace*{2cm}
+    \includegraphics[width=0.35\textwidth]{Kath.png} \\[2cm]
+
+    {\Huge \bfseries Lab Report 4} \\[0.5cm]
+    {\Large Form handling validation and Server side Product Entry} \\[2cm]
+
+    {\Large \textbf{Course:} CSC381 - E-Commerce} \\[1cm]
+    {\Large \textbf{Submitted by:}} \\[0.3cm]
+    {\large Parakram Kharel \\ Roll No: 24} \\[2cm]
+
+    \textit{Kathford International College of Engineering and Management} \\
+    Affiliated to Tribhuvan University \\[3cm]
+    
+    \date{July 27, 2025}
+    {\normalsize \@date}
+    % \today
+  \end{center}
+\end{titlepage}
+
+% Use fancy header/footer for the rest of the document
+\pagestyle{main}
+\setlength{\parskip}{1em}
+
+% --------- Content ---------
+\section*{1. Objective}
+Implement client-side validation with JavaScript and secure server-side form processing with PHP and MySQL, enabling reliable product and customer data entry.
+
+\section*{2. Tools and Technologies Used}
+\begin{longtable}{ll}
+\toprule
+\textbf{Technology} & \textbf{Purpose} \\
+\midrule
+HTML5 & Semantic markup and form structure \\
+CSS3 & Styling and responsive layouts \\
+JavaScript (jQuery) & Client-side validation and interaction \\
+PHP & Server-side logic and database operations \\
+MySQL & Data storage and management \\
+Bootstrap 5 & UI design and responsiveness \\
+VS Code & Development environment \\
+Browser DevTools & Debugging and testing \\
+\bottomrule
+\end{longtable}
+
+\section*{3. Theory / Background}
+Client-side JavaScript validation improves user experience by catching errors early. Server-side PHP with prepared statements secures data integrity and prevents SQL injection. Together with MySQL for data storage and the Post/Redirect/Get pattern for UX, this creates robust, scalable e-commerce entry forms.
+
+\section*{4. Page Layout Design}
+\subsection*{4.1 Product Entry Form Structure}
+The product entry form is designed with a clean, responsive Bootstrap 5 layout featuring:
+\begin{itemize}
+  \item Input fields for product title, description, keywords, and price with placeholder text and proper HTML5 validation
+  \item Select dropdowns for product categories and brands, dynamically populated from the database
+  \item Multiple image upload inputs with client-side file type and size validation
+  \item A prominent submit button that triggers client-side validation before submitting to the server
+  \item Consistent styling and spacing for a user-friendly experience across devices
+\end{itemize}
+
+\subsection*{4.2 Customer Entry Form Structure}
+The customer entry form follows similar design principles for consistency:
+\begin{itemize}
+  \item Required fields including first name, last name, and email with validation and placeholder hints
+  \item Optional inputs for phone number, address, city, state, postal code, and country
+  \item Responsive grid layout for address fields for better usability on different screen sizes
+  \item Submit button enhanced with gradient styling and hover animations for visual appeal
+  \item Integrated client-side validation using jQuery to ensure form completeness and format correctness
+\end{itemize}
+
+\subsection*{4.3 Validation and Security Features}
+\begin{itemize}
+  \item JavaScript (jQuery) client-side validation prevents incomplete or incorrectly formatted submissions, reducing server load and improving user experience
+  \item \sloppy Server-side PHP validation, sanitization, and prepared statements with \mintinline{php}{bind_param()} ensure data integrity and prevent SQL injection attacks
+  \item Implementation of the Post/Redirect/Get (PRG) pattern to prevent duplicate submissions on page refresh
+  \item Secure handling of image uploads, including MIME type checks and unique file naming to avoid conflicts or security issues
+  \item User feedback through alert popups on errors and confirmations after successful data submission
+\end{itemize}
+  
+\section*{5. Code Snippets}
+
+\subsection*{5.1 HTML Code: Product Entry Form}
+\begin{code}[fontsize=\small]{html}
+<form id="productForm" method="POST" enctype="multipart/form-data" novalidate>
+    <div>
+        <label for="product_title">Product Title *</label>
+        <input type="text" id="product_title" name="product_title" required>
+    </div>
+    <div>
+        <label for="description">Description *</label>
+        <textarea id="description" name="description" required></textarea>
+    </div>
+    <div>
+        <label for="product_keywords">Keywords *</label>
+        <input type="text" id="product_keywords" name="product_keywords" required>
+    </div>
+    <div>
+        <label for="product_category">Category *</label>
+        <select id="product_category" name="product_category" required>
+            <!-- Options dynamically populated -->
+        </select>
+    </div>
+    <div>
+        <label for="product_brand">Brand *</label>
+        <select id="product_brand" name="product_brand" required>
+            <!-- Options dynamically populated -->
+        </select>
+    </div>
+    <div>
+        <label for="product_price">Price *</label>
+        <input type="number" id="product_price" name="product_price" step="0.01" required>
+    </div>
+    <div>
+        <label for="product_image1">Image 1 *</label>
+        <input type="file" id="product_image1" name="product_image1" accept="image/*" required>
+    </div>
+    <div>
+        <label for="product_image2">Image 2 *</label>
+        <input type="file" id="product_image2" name="product_image2" accept="image/*" required>
+    </div>
+    <div>
+        <label for="product_image3">Image 3 *</label>
+        <input type="file" id="product_image3" name="product_image3" accept="image/*" required>
+    </div>
+    <button type="submit" name="insert_product">Add Product</button>
+</form>
+\end{code}
+
+\subsection*{5.2 PHP Code: Server-Side Product Insert}
+\begin{code}[fontsize=\small]{php}
+<?php
+if (isset($_POST['insert_product'])) {
+    $stmt = $conn->prepare("INSERT INTO products (product_title, product_description, product_keywords,
+        category_id, brand_id, product_image1, product_image2, product_image3, product_price, date, status) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)");
+
+    $stmt->bind_param("sssissssds",
+        $product_Title, $product_Desc, $product_Key, $product_Cat, $product_Brand,
+        $product_Image1, $product_Image2, $product_Image3, $product_Price, $product_Status
+    );
+
+    if ($stmt->execute()) {
+      echo "<script>alert('Product inserted successfully');</script>";
+  } else {
+      error_log('Execute failed: ' . $stmt->error);
+      echo "<script>alert('DB error. Please try again later.');</script>";
+  }
+}
+?>
+\end{code}
+
+\subsection*{5.3 HTML Code: Customer Entry Form}
+\begin{code}[fontsize=\small]{html}
+<form id="customerForm" method="POST" novalidate>
+    <div>
+        <label for="first_name">First Name *</label>
+        <input type="text" id="first_name" name="first_name" required>
+    </div>
+    <div>
+        <label for="last_name">Last Name *</label>
+        <input type="text" id="last_name" name="last_name" required>
+    </div>
+    <div>
+        <label for="email">Email *</label>
+        <input type="email" id="email" name="email" required>
+    </div>
+    <div>
+        <label for="phone">Phone</label>
+        <input type="tel" id="phone" name="phone">
+    </div>
+    <div>
+        <label for="address">Address</label>
+        <textarea id="address" name="address"></textarea>
+    </div>
+    <button type="submit" name="add_customer">Add Customer</button>
+</form>
+\end{code}
+
+\subsection*{5.4 PHP Code: Server-Side Customer Insert}
+\begin{code}[fontsize=\small]{php}
+<?php
+if (isset($_POST['add_customer'])) {
+    $stmt = $conn->prepare("INSERT INTO customers 
+        (first_name, last_name, email, phone, address, city, state, postal_code, country, created_at) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
+
+    $stmt->bind_param("sssssssss",
+        $first_name, $last_name, $email,  $phone, $address,
+        $city, $state, $postal_code, $country
+    );
+
+    if ($stmt->execute()) {
+      $stmt->close();
+      header("Location: add_customer.php?success=1");
+      exit();
+    } 
+    $stmt->close();
+    error_log('Execute failed: ' . $stmt->error);
+    echo "<script>alert('DB error. Please try again later.');</script>";
+    
+}
+?>
+\end{code}
+
+\subsection*{5.5 JavaScript: jQuery Client-Side Validation}
+\begin{code}[fontsize=\small]{javascript}
+$(function() {
+    $("#customerForm, #productForm").on("submit", function(e) {
+        let errors = [];
+        $(this).find("[required]").each(function() {
+            if (!$.trim($(this).val())) {
+                errors.push($(this).prev("label").text() + " is required.");
+            }
+        });
+
+        let emailField = $(this).find("input[type='email']");
+        if (emailField.length) {
+            let email = $.trim(emailField.val());
+            let emailReg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailReg.test(email)) {
+                errors.push("Please enter a valid email.");
+            }
+        }
+        if (errors.length > 0) {
+            e.preventDefault();
+            alert(errors.join("\n"));
+        }
+    });
+});
+\end{code}
+
+\section*{6. Output / Screenshots}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth,height=5cm,keepaspectratio]{images/describe_product_table.png}
+  \caption{Product Table.}
+  \label{fig:img1}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth,height=5cm,keepaspectratio]{images/describe_customer_table.png}
+  \caption{Customer Table.}
+  \label{fig:img2}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth,height=8cm,keepaspectratio]{images/insert_product_page.png}
+  \caption{Insert Product Page.}
+  \label{fig:img3}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth,height=4cm,keepaspectratio]{images/insert_product_success.png}
+  \includegraphics[width=\textwidth,height=4cm,keepaspectratio]{images/insert_product_success_db.png}
+  \caption{Insert Product Success.}
+  \label{fig:img4}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth,height=7cm,keepaspectratio]{images/insert_customer_page.png}
+  \caption{Insert Customer Page.}
+  \label{fig:img5}
+\end{figure}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth,height=3cm,keepaspectratio]{images/insert_customer_success.png}
+  \includegraphics[width=\textwidth,height=3cm,keepaspectratio]{images/insert_customer_success_db.png}
+  \caption{Insert Customer Success.}
+  \label{fig:img6}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth,height=8cm,keepaspectratio]{images/client_side_validation.png}
+  \caption{Client Side Validation.}
+  \label{fig:img7}
+\end{figure}
+
+\section*{7. Result}
+The e-commerce application integrates dynamic cart management using JavaScript arrays and objects. Users can add, update, and remove items in real-time with array methods like \texttt{push()}, \texttt{splice()}, and \texttt{reduce()}. Cart data persists via \texttt{localStorage}, while DOM updates ensure a seamless interface across devices. Server-side PHP securely processes form data using prepared statements, ensuring data integrity and preventing SQL injection. Image uploads are validated and uniquely named. The Post/Redirect/Get pattern effectively prevents duplicate submissions.
+
+\section*{8. Conclusion}
+This lab covered key full-stack concepts by combining client-side validation and interactive UI with secure server-side handling and database management. Students practiced JavaScript array manipulation, DOM control, and PHP prepared statements. The project demonstrates how to build secure, user-friendly e-commerce forms enabling real-time cart operations and persistent data storage.
+
+\section*{9. References}
+\begin{itemize}
+  \item \href{https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array}{MDN Array Methods Documentation}
+  \item \href{https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model}{MDN DOM Manipulation Guide}
+  \item \href{https://developer.mozilla.org/en-US/docs/Web/API/Storage}{MDN Web Storage API}
+  \item \href{https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises}{MDN JavaScript Promises Guide}
+  \item \href{https://www.php.net/manual/en/mysqli.prepare.php}{PHP mysqli Prepared Statements}
+  \item \href{https://getbootstrap.com/docs/5.3/getting-started/introduction/}{Bootstrap 5 Documentation}
+  \item \href{https://jquery.com/}{jQuery Official Website}
+\end{itemize}
+
+\end{document}

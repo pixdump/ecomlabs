@@ -1,0 +1,448 @@
+% chktex-file 8 36 26 38 32
+\documentclass[a4paper,12pt]{article}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{float}
+\geometry{margin=1in}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{minted}
+\usepackage{colortbl}
+\usepackage{setspace}
+\usepackage[utf8]{inputenc}
+\usepackage{newunicodechar}
+\usepackage{amssymb}
+\usepackage{lmodern} 
+\usepackage{subcaption}
+\usepackage{silence}
+\WarningFilter{fancyhdr}{\headheight is too small}
+
+\newunicodechar{✓}{\checkmark}  
+\usepackage[most]{tcolorbox}
+\tcbuselibrary{minted, listingsutf8}
+\setminted{breaklines}
+
+\newtcblisting{code}[2][]{%
+  listing engine=minted,
+  colback=white,
+  colframe=black,
+  listing only,
+  minted language=#2,
+  minted options={fontsize=\small, linenos, breaklines,
+                  breaksymbolleft=, breaksymbolright=, #1},
+  sharp corners,
+  boxrule=0.8pt,
+  left=5pt,
+  right=5pt,
+  top=8pt,
+  bottom=8pt,
+  enhanced,
+  breakable
+}
+
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue},
+  stringstyle=\color{red},
+  commentstyle=\color{green!50!black},
+  breaklines=true,
+  frame=single,
+  numbers=left,
+  numberstyle=\tiny,
+  stepnumber=1,
+  numbersep=5pt,
+  showstringspaces=false,
+  tabsize=2,
+}
+
+% Header and footer setup for all pages except cover
+\fancypagestyle{main}{
+  \fancyhf{}
+  \rhead{CSC381 - E-Commerce}
+  \lhead{Lab 5: Building a dynamic Product Catalog with PhP and MySql}
+  \cfoot{\thepage}
+  \renewcommand{\headrulewidth}{0.4pt}
+  \renewcommand{\footrulewidth}{0.4pt}
+}
+
+\title{Lab 5: Building a dynamic Product Catalog with PhP and MySql}
+\author{Submitted by: Parakram Kharel \\ Roll No: 24 \\ 
+\textit{Kathford International College of Engineering and Management} \\ 
+Affiliated to Tribhuvan University}
+% \date{\today}
+\makeatletter
+\begin{document}
+% \date{August 17, 2025}
+
+% --------- Cover Page ---------
+\begin{titlepage}
+  \begin{center}
+    \vspace*{2cm}
+    \includegraphics[width=0.35\textwidth]{Kath.png} \\[2cm]
+
+    {\Huge \bfseries Lab Report 5} \\[0.5cm]
+    {\Large Building a dynamic Product Catalog with PhP and MySql} \\[2cm]
+
+    {\Large \textbf{Course:} CSC381 - E-Commerce} \\[1cm]
+    {\Large \textbf{Submitted by:}} \\[0.3cm]
+    {\large Parakram Kharel \\ Roll No: 24} \\[2cm]
+
+    \textit{Kathford International College of Engineering and Management} \\
+    Affiliated to Tribhuvan University \\[3cm]
+    
+    \date{August 10, 2025}
+    {\normalsize \@date}
+    % \today
+  \end{center}
+\end{titlepage}
+
+% Use fancy header/footer for the rest of the document
+\pagestyle{main}
+\setlength{\parskip}{1em}
+
+% --------- Content ---------
+\section*{1. Objective}
+To build a dynamic product catalog using PHP and MySQL, fetch product details from the database, and display them in a responsive, user-friendly layout.
+
+\section*{2. Tools and Technologies Used}
+\begin{longtable}{ll}
+\toprule
+\textbf{Technology} & \textbf{Purpose} \\
+\midrule
+HTML5 & Semantic markup and form structure \\
+CSS3 & Styling and responsive layouts \\
+JavaScript (jQuery) & Client-side validation and interactive features \\
+PHP & Server-side logic, form handling, and database operations \\
+MySQL & Data storage and management \\
+Caddy & Web server \\
+Bootstrap 5 & UI design, responsive layout, and component styling \\
+VS Code & Development environment \\
+Browser DevTools & Debugging and performance testing \\
+\bottomrule
+\end{longtable}
+
+
+\section*{3. Theory / Background}
+A dynamic catalog is generated server-side: PHP executes SQL queries against MySQL to retrieve product rows and renders them into responsive HTML using Bootstrap components. Listing views fetch multiple products (optionally randomized or filtered by brand/category), while detail views retrieve a single product by ID using parameterized queries for safety. Clean rendering relies on escaping output, consistent image paths, and a grid-based layout so products adapt across devices.
+
+\section*{4. Page Layout Design}
+
+\subsection*{4.1 Product Listing Grid}
+\begin{itemize}
+  \item Dynamic fetch of products from MySQL and render as cards.
+  \item Random featured set on home (e.g., 3 items) for variety.
+  \item Clean card layout with image, title, short description, and price.
+  \item Quick actions: Add to Cart and View More per product.
+  \item Responsive grid that adapts from mobile to desktop.
+\end{itemize}
+
+\subsection*{4.2 Filtering by Brand and Category}
+\begin{itemize}
+  \item Sidebar lists brands and categories pulled from the database.
+  \item Clicking a link filters products server-side by selected id.
+  \item Clear “No data found” message when filters return empty.
+\end{itemize}
+
+\subsection*{4.3 Product Details Page}
+\begin{itemize}
+  \item Dedicated page loads product by id using a secure query.
+  \item Shows up to three images, formatted description, and price.
+  \item Displays related info: brand and category labels.
+  \item Includes a back-to-catalog link for easy navigation.
+\end{itemize}
+
+\subsection*{4.4 Navigation and Search}
+\begin{itemize}
+  \item Primary navbar with site name and main links.
+  \item Secondary navbar for welcome/login status.
+  \item Search form submits query to server to list matching products.
+\end{itemize}
+
+\subsection*{4.5 Data and Security Practices}
+\begin{itemize}
+  \item Uses parameterized queries on detail page to prevent injection.
+  \item Escapes output (titles, descriptions, images) to avoid XSS.
+  \item Consistent image directory and clean, structured markup.
+\end{itemize}
+
+  
+\section*{5. Code Snippets}
+
+\subsection*{5.1 PHP Function to Retrieve All Products}
+\begin{code}[fontsize=\small]{php}
+<?php
+function getAllProducts(){
+  global $conn;
+  if(!isset($_GET['brand']) && !isset($_GET['category']) ){
+    $select_query1 = "SELECT * FROM products";
+    $result_query1 = mysqli_query($conn, $select_query1);
+
+    while($row_data1 = mysqli_fetch_assoc($result_query1)){
+      $prod_id = $row_data1['product_id'];
+      $title = htmlspecialchars($row_data1['product_title']);
+      $desc = htmlspecialchars($row_data1['product_description']);
+      $img1 = htmlspecialchars($row_data1['product_image1']);
+      $price = number_format($row_data1['product_price'], 2);
+      $cat_id = $row_data1['category_id'];
+      $brand_id = $row_data1['brand_id'];
+
+      echo 
+      "<div class='col-md-4 mb-4'>
+        <div class='card h-100 shadow-sm'>
+          <img src='/admin/product_images/$img1' alt='$title'>
+          <div class='card-body d-flex flex-column'>
+              <h5 class='card-title'>$title</h5>
+              <p class='card-text flex-grow-1'>$desc</p>
+              <p class='text-primary fw-bold fs-5'>NPR $price</p>
+              <div class='mt-auto d-flex'>
+                  <a href='add_to_cart.php?product_id=$prod_id'>
+                      <i class='fa fa-cart-plus me-1'></i> Add To Cart
+                  </a>
+                  <a href='product_details.php?id=$prod_id'>
+                      View More
+                  </a>
+              </div>
+          </div>
+        </div>
+      </div>";
+    }
+  }
+}
+?>
+\end{code}
+
+\subsection*{5.2 PHP Function to Get Product by Brand and Category}
+\begin{code}[fontsize=\small]{php}
+<?php
+function getProductByBrand(){
+  global $conn;
+  if(isset($_GET['brand'])){
+    $brand_id = (int)$_GET['brand'];
+    $select_query1 = "SELECT * FROM `products` WHERE brand_id = $brand_id";
+    $result_query1 = mysqli_query($conn, $select_query1);
+    $num_of_rows = mysqli_num_rows($result_query1);
+
+    if($num_of_rows == 0){
+        echo "<h2 class='text-center text-danger'>No data is found under this brand.</h2>";
+    }
+    while($row_data1 = mysqli_fetch_assoc($result_query1)){
+      $prod_id = $row_data1['product_id'];
+      $title = htmlspecialchars($row_data1['product_title']);
+      $desc = htmlspecialchars($row_data1['product_description']);
+      $img1 = htmlspecialchars($row_data1['product_image1']);
+      $price = number_format($row_data1['product_price'], 2);
+
+      echo 
+      "<div class='col-md-4 mb-4'>
+        <div class='card h-100 shadow-sm'>
+          <img src='/admin/product_images/$img1' alt='$title'>
+          <div class='card-body d-flex flex-column'>
+            <h5 class='card-title'>$title</h5>
+            <p class='card-text flex-grow-1'>$desc</p>
+            <p class='text-primary fw-bold fs-5'>NPR $price</p>
+            <div class='mt-auto d-flex'>
+              <a href='add_to_cart.php?product_id=$prod_id'>
+                <i class='fa fa-cart-plus'></i> Add To Cart
+              </a>
+              <a href='product_details.php?id=$prod_id'>
+                View More
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>";
+    }
+  }
+}
+
+function getProductByCategory(){
+  global $conn;
+  if(isset($_GET['category'])){
+    $category_id = (int)$_GET['category'];
+    $select_query1 = "SELECT * FROM `products` WHERE category_id = $category_id";
+    $result_query1 = mysqli_query($conn, $select_query1);
+    $num_of_rows = mysqli_num_rows($result_query1);
+
+    if($num_of_rows == 0){
+        echo "<h2 class='text-center text-danger'>No data is found under this category.</h2>";
+    }
+    while($row_data1 = mysqli_fetch_assoc($result_query1)){
+      $prod_id = $row_data1['product_id'];
+      $title = htmlspecialchars($row_data1['product_title']);
+      $desc = htmlspecialchars($row_data1['product_description']);
+      $img1 = htmlspecialchars($row_data1['product_image1']);
+      $price = number_format($row_data1['product_price'], 2);
+
+      echo 
+      "<div class='col-md-4 mb-4'>
+        <div class='card h-100 shadow-sm'>
+          <img src='/admin/product_images/$img1' alt='$title'>
+          <div class='card-body d-flex flex-column'>
+            <h5 class='card-title'>$title</h5>
+            <p class='card-text flex-grow-1'>$desc</p>
+            <p class='text-primary fw-bold fs-5'>NPR $price</p>
+            <div class='mt-auto d-flex'>
+              <a href='add_to_cart.php?product_id=$prod_id' >
+                <i class='fa fa-cart-plus'></i> Add To Cart
+              </a>
+              <a href='product_details.php?id=$prod_id'>
+                View More
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>";
+    }
+  }
+}
+?>
+\end{code}
+
+\subsection*{5.3 PHP & HTML Code: Display All Products}
+\begin{code}[fontsize=\small]{php}
+<?php
+  <div class="container my-4">
+    <div class="row">
+      <div class="col-md-10">
+        <div class="row g-4">
+          <?php
+            getAllProducts();
+            getProductByBrand();
+            getProductByCategory();
+          ?>
+        </div>
+      </div>
+      <div class="col-md-2 bg-secondary text-white p-3 rounded">
+        <h5 class="text-center bg-info p-2 rounded">Brands</h5>
+        <ul class="nav flex-column mb-4">
+          <?php getBrands(); ?>
+        </ul>
+        <h5 class="text-center bg-info p-2 rounded">Categories</h5>
+        <ul class="nav flex-column">
+          <?php getCategories(); ?>
+        </ul>
+      </div>
+    </div>
+  </div>
+?>
+\end{code}
+
+\subsection*{5.4 PHP Code to Display Product Details}
+\begin{code}[fontsize=\small]{php}
+<?php
+include('includes/connect.php');
+$product_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+if ($product_id <= 0) { die("Invalid Product ID."); }
+
+$stmt = $conn->prepare("SELECT p.product_title, p.product_description, p.product_price, 
+    p.product_image1, p.product_image2, p.product_image3, b.brand_title, c.category_title 
+    FROM products p
+    JOIN brands b ON p.brand_id = b.brand_id
+    JOIN categories c ON p.category_id = c.category_id
+    WHERE p.product_id = ? AND p.status = 'true'");
+$stmt->bind_param("i", $product_id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows === 0) { die("Product not found."); }
+$product = $result->fetch_assoc();
+$stmt->close();
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title><?= $product['product_title'] ?> - Product Details</title>
+</head>
+<body>
+<div class="container mt-4">
+    <h1><?= htmlspecialchars($product['product_title']) ?></h1>
+    <p><strong>Brand:</strong> <?= htmlspecialchars($product['brand_title']) ?></p>
+    <p><strong>Category:</strong> <?= htmlspecialchars($product['category_title']) ?></p>
+    <div class="row mb-4">
+      <div class="col-md-6">
+        <img src="/admin/product_images/<?= $product['product_image1'] ?>">
+        <?php if (!empty($product['product_image2'])): ?>
+        <img src="/admin/product_images/<?= $product['product_image2'] ?>">
+        <?php endif; ?>
+        <?php if (!empty($product['product_image3'])): ?>
+        <img src="/admin/product_images/<?= $product['product_image3'] ?>">
+        <?php endif; ?>
+      </div>
+      <div class="col-md-6">
+        <h3>Price: NPR <?= number_format($product['product_price'], 2); ?></h3>
+        <p><?= nl2br(htmlspecialchars($product['product_description'])); ?></p>
+        <a href="displayAll.php" class="btn">Back</a>
+      </div>
+    </div>
+</div>
+</body>
+</html>
+
+\end{code}
+
+\section*{6. Output / Screenshots}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth,height=6cm]{images/product_catalog.png}
+  \caption{Product Catalog.}
+  \label{fig:img1}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth,height=6cm]{images/product_list.png}
+  \caption{Product List.}
+  \label{fig:img2}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth,height=7cm,keepaspectratio]{images/product_by_brand.png}
+  \caption{Product By Brand.}
+  \label{fig:img3}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth,height=7cm,keepaspectratio]{images/product_by_category.png}
+  \caption{Product By Category.}
+  \label{fig:img4}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth,height=5cm]{images/product_details.png}
+  \caption{Product Details.}
+  \label{fig:img5}
+\end{figure}
+
+\section*{7. Result}
+The catalog dynamically fetches products from MySQL and renders them as responsive Bootstrap cards with titles, images, price, and actions. Listing pages support random highlights and server-side filtering by brand or category, with clear empty-state feedback. The product details page securely loads one item by id using a prepared statement, shows up to three images, and provides a back-to-catalog link. Output is escaped to prevent XSS, ids are validated, and consistent image paths keep rendering reliable.
+
+\section*{8. Conclusion}
+This lab delivers a fully dynamic, database-driven product catalog with clean server rendering and responsive UI. Students implemented listing and detail views, safe queries, output escaping, and simple search/filter flows. The result is a maintainable foundation ready for pagination, sorting, and cart integration.
+
+\section*{9. References}
+\begin{itemize}
+  \item \href{https://www.php.net/manual/en/mysqli.prepare.php}{PHP mysqli Prepared Statements}
+  \item \href{https://www.php.net/manual/en/function.htmlspecialchars.php}{PHP htmlspecialchars}
+  \item \href{https://dev.mysql.com/doc/refman/8.0/en/select.html}{MySQL SELECT Reference}
+  \item \href{https://getbootstrap.com/docs/5.3/getting-started/introduction/}{Bootstrap 5 Documentation}
+  \item \href{https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Identifying_resources_on_the_Web}{HTTP URLs and Query Strings (MDN)}
+  \item \href{https://caddyserver.com/docs/}{Caddy Web Server Documentation}
+\end{itemize}
+
+
+\end{document}
